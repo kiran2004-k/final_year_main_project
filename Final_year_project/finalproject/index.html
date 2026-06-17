@@ -1,0 +1,1161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Lunaris - Tamil Nadu Grand Hotels AI Concierge</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@200;300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C8960C;--gold-l:#E8C94A;--gold-d:#7A5808;
+  --deep:#06050A;--surf:#100E1A;--card:#181526;
+  --txt:#EDE8F5;--muted:#7A6E90;--border:rgba(200,150,200,0.15);
+  --accent:#9B6FD4;--accent2:#C87BE8;
+  --green:#3AAA7A;--red:#C05070;
+}
+html,body{height:100%;overflow:hidden;font-family:'Josefin Sans',sans-serif}
+
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shimmer{0%{background-position:0%}100%{background-position:300%}}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.9)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(155,111,212,.2)}50%{box-shadow:0 0 40px rgba(155,111,212,.45)}}
+@keyframes slideR{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideL{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+
+.fade-in{animation:fadeIn .6s ease forwards}
+.shimmer-gold{
+  background:linear-gradient(90deg,var(--gold-d),var(--gold-l),var(--gold),var(--gold-l),var(--gold-d));
+  background-size:300%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;animation:shimmer 5s linear infinite;
+}
+.shimmer-purple{
+  background:linear-gradient(90deg,#7A5AB0,var(--accent2),var(--accent),var(--accent2),#7A5AB0);
+  background-size:300%;-webkit-background-clip:text;background-clip:text;
+  -webkit-text-fill-color:transparent;color:transparent;animation:shimmer 4s linear infinite;
+}
+
+body::before{
+  content:'';position:fixed;inset:0;z-index:0;
+  background:
+    linear-gradient(180deg,rgba(6,5,10,.82) 0%,rgba(6,5,10,.65) 40%,rgba(6,5,10,.88) 100%),
+    url('https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1920&q=80&auto=format') center/cover no-repeat fixed;
+  pointer-events:none;
+}
+body::after{
+  content:'';position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse at 15% 25%,rgba(155,111,212,.12) 0%,transparent 55%),
+    radial-gradient(ellipse at 85% 75%,rgba(200,150,12,.08) 0%,transparent 55%);
+  pointer-events:none;
+}
+
+#root{position:relative;z-index:1;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* NAV */
+nav{
+  flex-shrink:0;height:64px;display:flex;align-items:center;justify-content:space-between;
+  padding:0 36px;border-bottom:1px solid var(--border);
+  background:rgba(6,5,10,.75);backdrop-filter:blur(20px);z-index:100;
+}
+.nav-brand small{display:block;font-size:8px;letter-spacing:5px;color:var(--muted);margin-bottom:2px}
+.nav-brand span{font-family:'Cormorant Garamond',serif;font-size:22px;letter-spacing:1px}
+.nav-right{display:flex;align-items:center;gap:12px}
+.nav-btn{
+  background:rgba(155,111,212,.1);border:1px solid rgba(155,111,212,.2);
+  border-radius:8px;padding:7px 16px;color:var(--accent2);
+  font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:2px;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.nav-btn:hover{background:rgba(155,111,212,.2);border-color:var(--accent)}
+.lang-select{
+  background:rgba(255,255,255,.05);border:1px solid var(--border);
+  border-radius:8px;padding:7px 30px 7px 12px;color:var(--txt);
+  font-family:'Josefin Sans',sans-serif;font-size:11px;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237A6E90'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 10px center;transition:border-color .2s;
+}
+.lang-select:focus{outline:none;border-color:var(--accent)}
+.lang-select option{background:#181526}
+
+/* SCREENS */
+.screen{position:absolute;inset:64px 0 0;opacity:0;pointer-events:none;transition:opacity .4s;overflow:hidden}
+.screen.active{opacity:1;pointer-events:all}
+
+/* WELCOME */
+#sc-welcome{display:flex;align-items:center;justify-content:center;overflow-y:auto}
+.welcome-wrap{text-align:center;max-width:560px;padding:48px 32px;animation:fadeIn .8s ease}
+.hero-orb{
+  width:148px;height:148px;border-radius:50%;margin:0 auto 36px;
+  background:linear-gradient(145deg,#4B2F90,#1A0A3A,#7A3DAA);
+  display:flex;align-items:center;justify-content:center;font-size:56px;
+  box-shadow:0 0 60px rgba(155,111,212,.3),0 0 120px rgba(155,111,212,.1);
+  animation:float 4s ease-in-out infinite,glow 3s ease-in-out infinite;
+  position:relative;
+}
+.orb-r1{position:absolute;inset:-8px;border-radius:50%;border:1px solid rgba(155,111,212,.3);animation:spin 10s linear infinite}
+.orb-r2{position:absolute;inset:-18px;border-radius:50%;border:1px dashed rgba(200,150,12,.15);animation:spin 18s linear infinite reverse}
+.hero-tag{font-size:9px;letter-spacing:7px;color:var(--muted);margin-bottom:16px;text-transform:uppercase}
+.hero-title{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,70px);font-weight:300;line-height:1.05;margin-bottom:14px}
+.hero-sub{font-size:13px;color:var(--muted);font-weight:300;line-height:1.75;margin-bottom:10px}
+.lang-flags{display:flex;flex-wrap:wrap;justify-content:center;gap:8px;margin-bottom:32px}
+.lang-flag{background:rgba(255,255,255,.04);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:11px;color:var(--muted)}
+.form-group{margin-bottom:14px;text-align:left}
+.f-label{display:block;font-size:9px;letter-spacing:3px;color:var(--muted);text-transform:uppercase;margin-bottom:7px}
+.f-input{
+  width:100%;padding:13px 16px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:10px;color:var(--txt);
+  font-family:'Josefin Sans',sans-serif;font-size:15px;transition:all .2s;caret-color:var(--accent);
+}
+.f-input:focus{outline:none;border-color:rgba(155,111,212,.5);box-shadow:0 0 0 3px rgba(155,111,212,.07)}
+.f-select{
+  width:100%;padding:13px 40px 13px 16px;background:rgba(255,255,255,.05);
+  border:1px solid var(--border);border-radius:10px;color:var(--txt);
+  font-family:'Josefin Sans',sans-serif;font-size:14px;cursor:pointer;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M0 0l6 8 6-8z' fill='%237A6E90'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 14px center;transition:border-color .2s;
+}
+.f-select:focus{outline:none;border-color:rgba(155,111,212,.5)}
+.f-select option{background:#181526}
+.err-msg{color:#E08080;font-size:11px;margin-top:6px;letter-spacing:.5px;display:none}
+.btn-main{
+  width:100%;padding:16px;border:none;border-radius:12px;
+  background:linear-gradient(135deg,var(--accent),#6B3EA0);
+  color:#fff;font-family:'Josefin Sans',sans-serif;font-size:11px;
+  letter-spacing:3px;font-weight:500;cursor:pointer;transition:all .3s;text-transform:uppercase;
+}
+.btn-main:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 12px 36px rgba(155,111,212,.35)}
+.btn-main:disabled{opacity:.5;cursor:not-allowed}
+
+/* LOBBY */
+#sc-lobby{display:grid;grid-template-columns:330px 1fr;height:calc(100vh - 64px)}
+
+.left-panel{
+  border-right:1px solid var(--border);background:rgba(6,5,10,.82);
+  backdrop-filter:blur(20px);display:flex;flex-direction:column;overflow:hidden;
+}
+.left-panel-header{padding:18px 20px 14px;border-bottom:1px solid var(--border);flex-shrink:0}
+.left-panel-header .lp-tag{font-size:8px;letter-spacing:4px;color:var(--muted);margin-bottom:5px}
+.left-panel-header h2{font-family:'Cormorant Garamond',serif;font-size:19px;color:var(--txt);font-weight:400}
+.left-panel-body{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:12px}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:rgba(155,111,212,.3);border-radius:2px}
+
+.lunaris-status{
+  background:linear-gradient(135deg,rgba(155,111,212,.1),rgba(155,111,212,.04));
+  border:1px solid rgba(155,111,212,.2);border-radius:14px;padding:14px;text-align:center;
+}
+.lunaris-avatar-mini{
+  width:60px;height:60px;border-radius:50%;margin:0 auto 8px;
+  background:linear-gradient(145deg,#4B2F90,#1A0A3A,#7A3DAA);
+  display:flex;align-items:center;justify-content:center;font-size:24px;
+  box-shadow:0 0 24px rgba(155,111,212,.3);animation:glow 3s ease-in-out infinite;
+}
+.lunaris-name{font-family:'Cormorant Garamond',serif;font-size:17px;color:var(--txt);margin-bottom:2px}
+.lunaris-status-badge{
+  display:inline-flex;align-items:center;gap:6px;
+  background:rgba(58,170,122,.12);border:1px solid rgba(58,170,122,.25);
+  border-radius:20px;padding:4px 12px;font-size:9px;letter-spacing:2px;color:#5BC98A;
+}
+.status-dot{width:6px;height:6px;border-radius:50%;background:#3AAA7A;box-shadow:0 0 6px #3AAA7A;animation:pulse 2s infinite}
+.lang-badge{margin-top:6px;font-size:10px;color:var(--muted);letter-spacing:1px}
+
+.req-card{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:13px}
+.req-card-title{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:10px;text-transform:uppercase}
+.req-item{display:flex;align-items:flex-start;gap:8px;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.req-item:last-child{border-bottom:none}
+.req-key{font-size:9px;letter-spacing:1.5px;color:var(--muted);min-width:88px;flex-shrink:0;text-transform:uppercase;padding-top:1px}
+.req-val{font-size:13px;color:var(--txt);font-family:'Cormorant Garamond',serif;line-height:1.3;flex:1}
+.req-val.empty{color:rgba(122,110,144,.4);font-style:italic;font-size:11px}
+.req-check{width:14px;height:14px;border-radius:50%;flex-shrink:0;margin-left:auto;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:8px}
+.req-check.done{background:rgba(58,170,122,.2);border:1px solid rgba(58,170,122,.4);color:#5BC98A}
+.req-check.pending{background:rgba(122,110,144,.1);border:1px solid rgba(122,110,144,.2);color:var(--muted)}
+
+.city-pill{
+  display:flex;align-items:center;gap:10px;padding:9px 12px;
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;cursor:pointer;transition:all .2s;
+}
+.city-pill:hover,.city-pill.active{background:rgba(155,111,212,.1);border-color:rgba(155,111,212,.3)}
+.city-pill-emoji{font-size:18px}
+.city-pill-info{flex:1;min-width:0}
+.city-pill-name{font-size:13px;color:var(--txt);margin-bottom:1px}
+.city-pill-desc{font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+.hotel-micro{
+  background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.05);
+  border-radius:10px;padding:11px;cursor:pointer;transition:all .2s;animation:slideL .4s ease;
+}
+.hotel-micro:hover{border-color:rgba(155,111,212,.3);background:rgba(155,111,212,.06)}
+.hotel-micro-stars{color:var(--gold);font-size:10px;margin-bottom:5px}
+.hotel-micro-name{font-size:13px;color:var(--txt);font-family:'Cormorant Garamond',serif;margin-bottom:7px}
+.room-chips{display:flex;flex-wrap:wrap;gap:4px}
+.room-chip{background:rgba(200,150,12,.07);border:1px solid rgba(200,150,12,.15);border-radius:5px;padding:2px 7px;font-size:10px;color:var(--gold)}
+
+/* RIGHT PANEL */
+.right-panel{display:flex;flex-direction:column;background:rgba(6,5,10,.55);backdrop-filter:blur(8px);overflow:hidden;position:relative}
+.avatar-area{flex:1;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.avatar-placeholder{text-align:center;padding:40px;display:flex;flex-direction:column;align-items:center;gap:20px}
+.big-orb{
+  width:116px;height:116px;border-radius:50%;
+  background:linear-gradient(145deg,#4B2F90,#1A0A3A,#7A3DAA);
+  display:flex;align-items:center;justify-content:center;font-size:42px;
+  box-shadow:0 0 50px rgba(155,111,212,.25);
+  animation:float 4s ease-in-out infinite,glow 3s ease-in-out infinite;
+}
+#avatarIframe{position:absolute;inset:0;width:100%;height:100%;border:none;display:none}
+.avatar-loading{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  background:rgba(6,5,10,.85);gap:16px;display:none;
+}
+.spin-ring{width:52px;height:52px;border-radius:50%;border:2px solid rgba(155,111,212,.15);border-top-color:var(--accent);animation:spin 1s linear infinite}
+.avatar-controls{
+  flex-shrink:0;padding:14px 22px;background:rgba(6,5,10,.8);border-top:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+}
+.ctrl-info{flex:1;min-width:0}
+.ctrl-info .g-name{font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--txt)}
+.ctrl-info .g-sub{font-size:10px;color:var(--muted);letter-spacing:1px;margin-top:2px}
+.ctrl-btn{
+  padding:10px 18px;border-radius:8px;cursor:pointer;font-family:'Josefin Sans',sans-serif;
+  font-size:10px;letter-spacing:2px;transition:all .2s;white-space:nowrap;border:1px solid transparent;
+}
+.ctrl-btn-primary{background:linear-gradient(135deg,var(--accent),#6B3EA0);color:#fff}
+.ctrl-btn-primary:hover{box-shadow:0 6px 20px rgba(155,111,212,.35)}
+.ctrl-btn-danger{background:rgba(192,80,112,.15);border-color:rgba(192,80,112,.3);color:#E08090}
+.ctrl-btn-danger:hover{background:rgba(192,80,112,.25)}
+.ctrl-btn-success{background:rgba(58,170,122,.15);border-color:rgba(58,170,122,.3);color:#5BC98A}
+
+/* MODAL */
+.modal-bg{
+  position:fixed;inset:0;z-index:500;background:rgba(0,0,0,.88);backdrop-filter:blur(14px);
+  display:flex;align-items:center;justify-content:center;
+  opacity:0;pointer-events:none;transition:opacity .35s;overflow-y:auto;padding:20px;
+}
+.modal-bg.open{opacity:1;pointer-events:all}
+.modal-card{
+  width:min(620px,100%);background:var(--card);border-radius:22px;
+  border:1px solid rgba(155,111,212,.25);padding:36px;animation:fadeIn .4s ease;
+  box-shadow:0 40px 120px rgba(0,0,0,.7);position:relative;max-height:90vh;overflow-y:auto;
+}
+.modal-close{
+  position:absolute;top:16px;right:16px;width:30px;height:30px;border-radius:50%;
+  background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.1);
+  color:#aaa;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+.modal-close:hover{background:rgba(192,80,112,.2);color:#E08090}
+.modal-tag{font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:8px}
+.modal-title{font-family:'Cormorant Garamond',serif;font-size:25px;color:var(--txt);margin-bottom:22px}
+.form-row-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media(max-width:500px){.form-row-2{grid-template-columns:1fr}}
+.form-divider{height:1px;background:var(--border);margin:18px 0}
+
+/* CONFIRMATION MODAL */
+.conf-card{
+  width:min(520px,100%);background:var(--card);border-radius:22px;
+  border:1px solid rgba(58,170,122,.25);padding:36px;animation:fadeIn .5s ease;
+  box-shadow:0 40px 120px rgba(0,0,0,.7);text-align:center;
+}
+.conf-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(58,170,122,.12);border:1px solid rgba(58,170,122,.3);
+  border-radius:30px;padding:7px 22px;margin-bottom:18px;
+}
+.conf-badge span{font-size:10px;letter-spacing:3px;color:#5BC98A;text-transform:uppercase}
+.conf-title{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--txt);margin-bottom:6px}
+.conf-sub{font-size:12px;color:var(--muted);margin-bottom:20px;line-height:1.6}
+.conf-num{
+  font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--gold);
+  letter-spacing:3px;background:rgba(200,150,12,.07);border:1px solid rgba(200,150,12,.2);
+  border-radius:10px;padding:11px 22px;display:inline-block;margin-bottom:22px;
+}
+.conf-details{background:rgba(255,255,255,.03);border:1px solid var(--border);border-radius:12px;padding:18px;margin-bottom:20px;text-align:left}
+.conf-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.conf-row:last-child{border-bottom:none}
+.conf-key{font-size:9px;letter-spacing:2px;color:var(--muted);text-transform:uppercase}
+.conf-val{font-size:13px;color:var(--txt);font-family:'Cormorant Garamond',serif}
+.conf-total{color:var(--gold);font-size:18px}
+.qr-section{background:rgba(255,255,255,.03);border:1px solid rgba(200,150,12,.18);border-radius:14px;padding:22px;margin-bottom:20px}
+.qr-title{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:14px;text-align:center}
+.qr-wrap{width:176px;height:176px;margin:0 auto 12px;border-radius:10px;overflow:hidden;border:3px solid rgba(200,150,12,.25);background:white;display:flex;align-items:center;justify-content:center}
+.qr-wrap img{width:100%;height:100%;object-fit:contain}
+.upi-box{background:rgba(200,150,12,.07);border:1px solid rgba(200,150,12,.2);border-radius:8px;padding:9px 14px;text-align:center;margin-bottom:8px}
+.upi-label{font-size:8px;letter-spacing:3px;color:var(--muted);margin-bottom:2px}
+.upi-val{font-size:15px;color:var(--gold);letter-spacing:1px;font-family:'Cormorant Garamond',serif}
+.email-notice{background:rgba(58,170,122,.07);border:1px solid rgba(58,170,122,.2);border-radius:10px;padding:11px 14px;margin-bottom:18px;font-size:12px;color:#5BC98A;text-align:center}
+.btn-done{background:linear-gradient(135deg,var(--accent),#6B3EA0);border:none;border-radius:10px;padding:13px 40px;color:#fff;font-family:'Josefin Sans',sans-serif;font-size:10px;letter-spacing:3px;cursor:pointer;transition:all .3s}
+.btn-done:hover{box-shadow:0 8px 28px rgba(155,111,212,.35)}
+
+/* FLOAT BUTTON */
+#floatBtn{
+  position:fixed;bottom:28px;right:28px;z-index:200;
+  width:62px;height:62px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),#6B3EA0);
+  border:2px solid rgba(155,111,212,.4);cursor:pointer;font-size:24px;
+  box-shadow:0 8px 32px rgba(155,111,212,.3),0 0 0 10px rgba(155,111,212,.06);
+  animation:float 3.5s ease-in-out infinite,glow 3s ease-in-out infinite;
+  display:none;transition:transform .2s;
+}
+#floatBtn:hover{transform:scale(1.1) translateY(-2px)}
+</style>
+</head>
+<body>
+<div id="root">
+
+<!-- NAV -->
+<nav>
+  <div class="nav-brand">
+    <small>SINCE 1892 - TAMIL NADU</small>
+    <span class="shimmer-purple">Lunaris Grand Hotels</span>
+  </div>
+  <div class="nav-right">
+    <select class="lang-select" id="langSelect" onchange="setLang(this.value)">
+      <option value="English">🌐 English</option>
+      <option value="Tamil">🇮🇳 Tamil</option>
+      <option value="Hindi">🇮🇳 Hindi</option>
+      <option value="French">🇫🇷 Français</option>
+      <option value="German">🇩🇪 Deutsch</option>
+      <option value="Japanese">🇯🇵 日本語</option>
+      <option value="Arabic">🇸🇦 Arabic</option>
+      <option value="Spanish">🇪🇸 Español</option>
+      <option value="Telugu">🇮🇳 Telugu</option>
+      <option value="Malayalam">🇮🇳 Malayalam</option>
+      <option value="Kannada">🇮🇳 Kannada</option>
+    </select>
+    <button class="nav-btn" id="bookBtn" style="display:none" onclick="openBookingModal()">Book Now</button>
+  </div>
+</nav>
+
+<!-- WELCOME SCREEN -->
+<div class="screen active" id="sc-welcome">
+  <div class="welcome-wrap">
+    <div class="hero-orb">
+      🏛️<div class="orb-r1"></div><div class="orb-r2"></div>
+    </div>
+    <p class="hero-tag">AI Avatar Concierge - Tamil Nadu</p>
+    <h1 class="hero-title"><span class="shimmer-purple">Meet Lunaris</span></h1>
+    <p class="hero-sub">
+      Your personal AI hotel concierge — speaks Tamil, English, Hindi, French,<br/>
+      Japanese, Arabic, Spanish, Telugu and more. Discover Tamil Nadu's finest hotels.
+    </p>
+    <div class="lang-flags">
+      <span class="lang-flag">🇮🇳 Tamil</span>
+      <span class="lang-flag">🌐 English</span>
+      <span class="lang-flag">🇮🇳 Hindi</span>
+      <span class="lang-flag">🇫🇷 French</span>
+      <span class="lang-flag">🇩🇪 German</span>
+      <span class="lang-flag">🇯🇵 Japanese</span>
+      <span class="lang-flag">🇸🇦 Arabic</span>
+      <span class="lang-flag">🇪🇸 Spanish</span>
+    </div>
+    <div class="form-group">
+      <label class="f-label">Your Name</label>
+      <input class="f-input" id="wlcName" type="text" placeholder="Enter your full name" onkeydown="if(event.key==='Enter')startJourney()"/>
+    </div>
+    <div class="form-group">
+      <label class="f-label">Email Address (for booking confirmation)</label>
+      <input class="f-input" id="wlcEmail" type="email" placeholder="your@email.com" onkeydown="if(event.key==='Enter')startJourney()"/>
+    </div>
+    <div id="wlcError" class="err-msg"></div>
+    <button class="btn-main" id="wlcBtn" onclick="startJourney()">Begin Your Journey</button>
+    <p style="margin-top:16px;font-size:10px;color:var(--muted);letter-spacing:.5px">
+      Powered by <span style="color:var(--accent2)">Tavus AI Avatar</span> &nbsp;·&nbsp;
+      <span style="color:var(--gold)">OpenAI GPT-4</span>
+    </p>
+  </div>
+</div>
+
+<!-- LOBBY SCREEN -->
+<div class="screen" id="sc-lobby">
+
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="left-panel-header">
+      <div class="lp-tag">Lunaris AI Concierge</div>
+      <h2>Guest Requirements</h2>
+    </div>
+    <div class="left-panel-body" id="leftBody">
+
+      <div class="lunaris-status">
+        <div class="lunaris-avatar-mini">🏛️</div>
+        <div class="lunaris-name shimmer-purple">Lunaris</div>
+        <div style="margin:5px 0">
+          <div class="lunaris-status-badge">
+            <div class="status-dot"></div>
+            <span id="liveStatus">READY</span>
+          </div>
+        </div>
+        <div class="lang-badge" id="langBadge">Speaking: English</div>
+      </div>
+
+      <div class="req-card">
+        <div class="req-card-title">Booking Requirements</div>
+        <div id="reqItems"></div>
+      </div>
+
+      <div>
+        <div style="font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:10px;text-transform:uppercase">Destinations</div>
+        <div id="cityPills"></div>
+      </div>
+
+      <div id="hotelMicros" style="display:none">
+        <div style="font-size:9px;letter-spacing:4px;color:var(--muted);margin-bottom:10px;text-transform:uppercase" id="hotelMicrosTitle">Hotels</div>
+        <div id="hotelMicroList"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="avatar-area" id="avatarArea">
+
+      <div class="avatar-placeholder" id="avatarPlaceholder">
+        <div class="big-orb">🏛️</div>
+        <div>
+          <div class="shimmer-purple" style="font-family:'Cormorant Garamond',serif;font-size:26px;margin-bottom:5px">Lunaris</div>
+          <div style="font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:18px">YOUR AI HOTEL CONCIERGE</div>
+          <button class="ctrl-btn ctrl-btn-primary" onclick="launchAvatar()" id="launchBtn" style="margin:0 auto;display:block;padding:11px 28px">
+            Connect to Lunaris
+          </button>
+          <p style="font-size:10px;color:var(--muted);margin-top:12px;letter-spacing:.5px">Lunaris will guide your booking in your language</p>
+        </div>
+      </div>
+
+      <div class="avatar-loading" id="avatarLoading">
+        <div class="spin-ring"></div>
+        <p style="font-size:11px;letter-spacing:3px;color:var(--muted)">CONNECTING TO LUNARIS...</p>
+        <p style="font-size:11px;color:rgba(155,111,212,.6);margin-top:4px" id="loadingMsg">Preparing AI avatar</p>
+      </div>
+
+      <iframe id="avatarIframe" src="about:blank" allow="camera;microphone;fullscreen;display-capture"></iframe>
+    </div>
+
+    <div class="avatar-controls">
+      <div class="ctrl-info">
+        <div class="g-name" id="ctrlName">-</div>
+        <div class="g-sub" id="ctrlSub">Ready to assist with your Tamil Nadu hotel booking</div>
+      </div>
+      <button class="ctrl-btn ctrl-btn-primary" onclick="openBookingModal()">Book a Room</button>
+      <button class="ctrl-btn ctrl-btn-danger" id="endBtn" onclick="endAvatarSession()" style="display:none">End Session</button>
+    </div>
+  </div>
+</div>
+
+<!-- BOOKING MODAL -->
+<div class="modal-bg" id="bookingModal">
+  <div class="modal-card">
+    <button class="modal-close" onclick="closeBookingModal()">x</button>
+    <div class="modal-tag">CONFIRM YOUR STAY</div>
+    <h2 class="modal-title">Reserve Your Room</h2>
+
+    <div class="form-group">
+      <label class="f-label">Destination City</label>
+      <select class="f-select" id="bCity" onchange="onCityChange(this.value)">
+        <option value="">Select a destination...</option>
+        <option>Chennai</option><option>Coimbatore</option><option>Madurai</option>
+        <option>Ooty</option><option>Kodaikanal</option><option>Mahabalipuram</option>
+        <option>Thanjavur</option><option>Rameswaram</option>
+      </select>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="f-label">Hotel</label>
+        <select class="f-select" id="bHotel" onchange="onHotelChange(this.value)">
+          <option value="">Select hotel...</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="f-label">Room Type</label>
+        <select class="f-select" id="bRoom" onchange="updatePricePreview()">
+          <option value="">Select room...</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="f-label">Check-In Date</label>
+        <input class="f-input" type="date" id="bCheckin" style="padding:11px 13px"/>
+      </div>
+      <div class="form-group">
+        <label class="f-label">Check-Out Date</label>
+        <input class="f-input" type="date" id="bCheckout" style="padding:11px 13px"/>
+      </div>
+    </div>
+    <div class="form-row-2">
+      <div class="form-group">
+        <label class="f-label">Number of Guests</label>
+        <select class="f-select" id="bGuests">
+          <option value="1">1 Guest</option><option value="2" selected>2 Guests</option>
+          <option value="3">3 Guests</option><option value="4">4 Guests</option>
+          <option value="5">5+ Guests</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="f-label">Email (for confirmation)</label>
+        <input class="f-input" type="email" id="bEmail" placeholder="your@email.com" style="padding:11px 13px"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label class="f-label">Special Requests</label>
+      <input class="f-input" type="text" id="bSpecial" placeholder="Honeymoon, vegetarian meals, temple visits..."/>
+    </div>
+
+    <div class="form-divider"></div>
+    <div id="bkPricePreview" style="display:none;margin-bottom:14px">
+      <div style="background:rgba(200,150,12,.06);border:1px solid rgba(200,150,12,.15);border-radius:10px;padding:13px 16px;display:flex;justify-content:space-between;align-items:center">
+        <div>
+          <div style="font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:3px">ESTIMATED TOTAL</div>
+          <div id="bkPriceVal" style="font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--gold)">-</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:3px">PAY VIA UPI</div>
+          <div style="font-size:12px;color:var(--gold)">ajay-2210@ptaxis</div>
+        </div>
+      </div>
+    </div>
+    <div id="bkError" class="err-msg" style="margin-bottom:10px"></div>
+    <button class="btn-main" id="bkSubmitBtn" onclick="submitBooking()">Confirm Booking & Send Email</button>
+  </div>
+</div>
+
+<!-- CONFIRMATION MODAL -->
+<div class="modal-bg" id="confModal">
+  <div class="conf-card">
+    <div style="font-size:50px;margin-bottom:14px">✦</div>
+    <div class="conf-badge">
+      <div class="status-dot"></div>
+      <span>Booking Confirmed</span>
+    </div>
+    <h2 class="conf-title">Your Room is Reserved!</h2>
+    <p class="conf-sub" id="confSubText">Confirmation email with payment QR has been sent.</p>
+    <div class="conf-num" id="confNum">-</div>
+
+    <div class="conf-details" id="confDetails"></div>
+
+    <div class="qr-section">
+      <div class="qr-title">SCAN TO PAY - UPI</div>
+      <div class="qr-wrap"><img id="confQR" src="" alt="UPI QR Code"/></div>
+      <div class="upi-box">
+        <div class="upi-label">UPI ID</div>
+        <div class="upi-val">ajay-2210@ptaxis</div>
+      </div>
+      <div style="font-size:11px;color:var(--muted);text-align:center">GPay / PhonePe / Paytm / BHIM / Any UPI App</div>
+    </div>
+
+    <div class="email-notice" id="emailNotice">Email confirmation sent to your inbox</div>
+    <button class="btn-done" onclick="closeConfModal()">Done - Thank You!</button>
+  </div>
+</div>
+
+<button id="floatBtn" onclick="launchAvatar()" title="Talk to Lunaris">🎙️</button>
+
+</div><!-- end #root -->
+
+<script>
+// ============================================================
+// CONSTANTS - declared first so nothing can reference before init
+// ============================================================
+var BACKEND = 'http://localhost:8000';
+var UPI_ID  = 'ajay-2210@ptaxis';
+
+var HOTELS = {
+  Chennai:{emoji:'🏛️',desc:'Capital - Bay of Bengal',
+    hotels:[
+      {name:'The Leela Palace Chennai', stars:5, rooms:{Deluxe:8500,Suite:18000,'Royal Suite':45000}},
+      {name:'ITC Grand Chola',          stars:5, rooms:{Classic:9000,'Club Room':14000,'Presidential Suite':55000}},
+      {name:'Taj Coromandel',           stars:5, rooms:{Superior:7500,'Luxury Room':12000,'Grand Presidential':38000}},
+      {name:'Radisson Blu Chennai',     stars:4, rooms:{Standard:4500,Deluxe:6500,Suite:12000}},
+    ]
+  },
+  Coimbatore:{emoji:'🏭',desc:'Manchester of South India',
+    hotels:[
+      {name:'The Residency Coimbatore', stars:5, rooms:{Standard:4200,Superior:6000,Suite:11000}},
+      {name:'Royal Orchid Central',     stars:4, rooms:{Standard:3500,Deluxe:5000,Suite:9000}},
+      {name:'Vivanta Coimbatore',       stars:5, rooms:{Premium:5500,Luxury:8000,'Luxury Suite':14000}},
+    ]
+  },
+  Madurai:{emoji:'🛕',desc:'Temple City',
+    hotels:[
+      {name:'Heritage Madurai',          stars:5, rooms:{Classic:6000,'Heritage Room':9000,Suite:18000}},
+      {name:'Taj Gateway Hotel Madurai', stars:4, rooms:{Standard:4000,Superior:6500,Suite:12000}},
+      {name:'GRT Regency Madurai',       stars:4, rooms:{Standard:3200,Deluxe:4800,Suite:9500}},
+    ]
+  },
+  Ooty:{emoji:'🌿',desc:'Queen of Hill Stations',
+    hotels:[
+      {name:'Savoy Hotel Ooty (IHCL)', stars:5, rooms:{Classic:9000,Luxury:14000,'Presidential Suite':32000}},
+      {name:'Sterling Deer Park Ooty', stars:4, rooms:{Cottage:5500,Deluxe:8000,Suite:15000}},
+      {name:'Sinclairs Retreat Ooty',  stars:4, rooms:{Standard:4000,Superior:6000,Suite:11000}},
+    ]
+  },
+  Kodaikanal:{emoji:'🏔️',desc:'Princess of Hill Stations',
+    hotels:[
+      {name:'Carlton Hotel Kodaikanal',   stars:5, rooms:{Standard:7000,Deluxe:11000,Suite:22000}},
+      {name:'Club Mahindra Kodaikanal',   stars:4, rooms:{Studio:5500,Suite:9000,Villa:18000}},
+      {name:'Elephant Valley Eco Resort', stars:4, rooms:{Cottage:4500,Deluxe:7000,Treehouse:14000}},
+    ]
+  },
+  Mahabalipuram:{emoji:'🗿',desc:'UNESCO Shore Temple',
+    hotels:[
+      {name:"Taj Fisherman's Cove",             stars:5, rooms:{'Beach Cottage':12000,'Sea View Suite':18000,Presidential:65000}},
+      {name:'Radisson Blu Resort Mahabalipuram', stars:5, rooms:{Deluxe:8000,'Pool View':12000,Suite:22000}},
+      {name:'Chariot Beach Resort',             stars:4, rooms:{Standard:5000,'Sea View':8500,Suite:16000}},
+    ]
+  },
+  Thanjavur:{emoji:'🎭',desc:'Chola Dynasty Capital',
+    hotels:[
+      {name:'Ideal River View Resort', stars:4, rooms:{Standard:3500,'River View':5500,Suite:10000}},
+      {name:'GRT Grand Thanjavur',     stars:4, rooms:{Standard:3000,Deluxe:4500,Suite:8500}},
+      {name:'Sangam Hotel Thanjavur',  stars:3, rooms:{Standard:2200,Superior:3500,Suite:7000}},
+    ]
+  },
+  Rameswaram:{emoji:'🌊',desc:'Sacred Pilgrimage Island',
+    hotels:[
+      {name:'Hotel Sea View Rameswaram', stars:4, rooms:{'Sea View':4500,Deluxe:6500,Suite:12000}},
+      {name:'Daiwik Hotels Rameswaram',  stars:4, rooms:{Standard:3800,'Temple View':5500,Suite:10000}},
+      {name:'TTDC Tamil Nadu Hotel',     stars:3, rooms:{Standard:2000,Deluxe:3200,Suite:6000}},
+    ]
+  }
+};
+
+var REQ_FIELDS = [
+  {key:'city',     label:'Destination'},
+  {key:'hotel',    label:'Hotel'},
+  {key:'room',     label:'Room Type'},
+  {key:'checkin',  label:'Check-In'},
+  {key:'checkout', label:'Check-Out'},
+  {key:'guests',   label:'Guests'},
+  {key:'email',    label:'Email'},
+  {key:'special',  label:'Special Req.'},
+];
+
+// ============================================================
+// STATE
+// ============================================================
+var S = {
+  name:'', email:'', lang:'English',
+  tavus:null, avatarLive:false,
+  selectedCity:'',
+  req:{city:'',hotel:'',room:'',checkin:'',checkout:'',guests:'',email:'',special:''}
+};
+// ============================================================
+// REAL-TIME BOOKING SYNC
+// ============================================================
+const ws = new WebSocket("ws://localhost:8000/ws/booking");
+
+ws.onopen = () => {
+  console.log("WebSocket connected");
+};
+
+ws.onmessage = (event) => {
+
+  const data = JSON.parse(event.data);
+
+  if(data.city) S.req.city = data.city;
+  if(data.hotel) S.req.hotel = data.hotel;
+  if(data.room) S.req.room = data.room;
+  if(data.checkin) S.req.checkin = data.checkin;
+  if(data.checkout) S.req.checkout = data.checkout;
+  if(data.guests) S.req.guests = data.guests;
+  if(data.email) S.req.email = data.email;
+
+  // refresh left booking panel
+  renderReqItems();
+};
+
+// ============================================================
+// INIT - runs after all vars declared above
+// ============================================================
+(function init(){
+  var today    = new Date().toISOString().split('T')[0];
+  var tomorrow = new Date(Date.now()+86400000).toISOString().split('T')[0];
+  var ci = document.getElementById('bCheckin');
+  var co = document.getElementById('bCheckout');
+  if(ci){ ci.min = today; ci.value = today; }
+  if(co){ co.min = tomorrow; co.value = tomorrow; }
+  if(ci) ci.addEventListener('change', function(){ if(co) co.min = ci.value; updatePricePreview(); });
+  if(co) co.addEventListener('change', updatePricePreview);
+  var bRoom = document.getElementById('bRoom');
+  if(bRoom) bRoom.addEventListener('change', updatePricePreview);
+  renderCityPills();
+  renderReqItems();
+})();
+
+// ============================================================
+// LANGUAGE
+// ============================================================
+function setLang(l){
+  S.lang = l;
+  document.getElementById('langBadge').textContent = 'Speaking: ' + l;
+  if(S.avatarLive){ endAvatarSession(true); }
+}
+
+// ============================================================
+// WELCOME -> LOBBY
+// ============================================================
+async function startJourney(){
+  var name  = document.getElementById('wlcName').value.trim();
+  var email = document.getElementById('wlcEmail').value.trim();
+  var errEl = document.getElementById('wlcError');
+  if(!name){
+    errEl.textContent = 'Please enter your name.';
+    errEl.style.display = 'block';
+    return;
+  }
+  if(!email || !email.includes('@')){
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+  errEl.style.display = 'none';
+
+  S.name = name;
+  S.email = email;
+  S.req.email = email;
+
+  document.getElementById('ctrlName').textContent = name;
+  document.getElementById('ctrlSub').textContent  = 'Lunaris is ready to assist in ' + S.lang;
+  document.getElementById('bEmail').value = email;
+  document.getElementById('bookBtn').style.display = '';
+  document.getElementById('floatBtn').style.display = '';
+
+  showScreen('lobby');
+  renderReqItems();
+  await launchAvatar();
+}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+  document.getElementById('sc-' + name).classList.add('active');
+}
+
+// ============================================================
+// AVATAR
+// ============================================================
+async function launchAvatar(){
+  if(S.avatarLive && S.tavus && S.tavus.conversation_url){
+    showIframe(S.tavus.conversation_url);
+    return;
+  }
+
+  document.getElementById('avatarPlaceholder').style.display = 'none';
+  document.getElementById('avatarLoading').style.display     = 'flex';
+  document.getElementById('loadingMsg').textContent          = 'Preparing ' + S.lang + ' AI avatar...';
+
+  try {
+    // Test backend health first
+    try {
+      var h = await fetch(BACKEND + '/api/health');
+      if(!h.ok) throw new Error('Backend error');
+    } catch(he){
+      throw new Error('Backend not reachable. Is python app.py running at ' + BACKEND + '?');
+    }
+
+    var res = await fetch(BACKEND + '/api/tavus/session', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({guest_name: S.name, language: S.lang})
+    });
+
+    var data = await res.json();
+
+    if(!res.ok){
+      var detail = data.detail || JSON.stringify(data);
+      if(detail.includes('401') || detail.toLowerCase().includes('unauthorized'))
+        throw new Error('Tavus API key is invalid. Update TAVUS_API_KEY in your .env file.');
+      if(detail.toLowerCase().includes('replica') || detail.toLowerCase().includes('persona'))
+        throw new Error('Tavus replica/persona ID not found. Check REPLICA_ID and PERSONA_ID in .env');
+      throw new Error('Tavus error: ' + detail);
+    }
+
+    if(!data.conversation_url)
+      throw new Error('No conversation URL returned. Check your Tavus account at tavus.io');
+
+    S.tavus = data;
+    S.avatarLive = true;
+    showIframe(data.conversation_url);
+    document.getElementById('endBtn').style.display = '';
+    document.getElementById('liveStatus').textContent = 'LIVE - ' + S.lang.toUpperCase();
+
+  } catch(e){
+    document.getElementById('avatarLoading').style.display    = 'none';
+    document.getElementById('avatarPlaceholder').style.display = 'flex';
+    document.getElementById('avatarPlaceholder').innerHTML    =
+      '<div class="big-orb" style="opacity:.5">⚠️</div>' +
+      '<div style="max-width:320px">' +
+        '<div style="font-size:13px;color:#E08090;margin-bottom:10px">Avatar Unavailable</div>' +
+        '<div style="font-size:11px;color:var(--muted);line-height:1.8;margin-bottom:16px;' +
+          'background:rgba(255,255,255,.03);border:1px solid rgba(255,80,80,.15);border-radius:8px;padding:12px;text-align:left">' +
+          e.message +
+        '</div>' +
+        '<div style="font-size:11px;color:#5BC98A;margin-bottom:14px">You can still browse hotels and make bookings below</div>' +
+        '<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">' +
+          '<button class="ctrl-btn ctrl-btn-primary" onclick="launchAvatar()" style="padding:9px 18px">Retry Avatar</button>' +
+          '<button class="ctrl-btn ctrl-btn-success" onclick="openBookingModal()" style="padding:9px 18px">Book Without Avatar</button>' +
+        '</div>' +
+      '</div>';
+    document.getElementById('liveStatus').textContent = 'OFFLINE';
+  }
+}
+
+function showIframe(url){
+  document.getElementById('avatarLoading').style.display    = 'none';
+  document.getElementById('avatarPlaceholder').style.display = 'none';
+  var iframe = document.getElementById('avatarIframe');
+  iframe.src = url;
+  iframe.style.display = 'block';
+}
+
+async function endAvatarSession(silent){
+  if(S.tavus && S.tavus.conversation_id){
+    try{
+      await fetch(BACKEND + '/api/tavus/session/' + S.tavus.conversation_id, {method:'DELETE'});
+    } catch(e){}
+  }
+  S.tavus = null;
+  S.avatarLive = false;
+  var iframe = document.getElementById('avatarIframe');
+  iframe.style.display = 'none';
+  iframe.src = 'about:blank';
+  document.getElementById('endBtn').style.display = 'none';
+  document.getElementById('liveStatus').textContent = 'READY';
+  if(!silent){
+    document.getElementById('avatarPlaceholder').style.display = 'flex';
+    document.getElementById('avatarPlaceholder').innerHTML =
+      '<div class="big-orb">🏛️</div>' +
+      '<div>' +
+        '<div class="shimmer-purple" style="font-family:\'Cormorant Garamond\',serif;font-size:26px;margin-bottom:5px">Lunaris</div>' +
+        '<div style="font-size:11px;color:var(--muted);letter-spacing:2px;margin-bottom:16px">SESSION ENDED</div>' +
+        '<button class="ctrl-btn ctrl-btn-primary" onclick="launchAvatar()" style="margin:0 auto;display:block;padding:10px 24px">Reconnect</button>' +
+      '</div>';
+  }
+}
+
+// ============================================================
+// REQUIREMENT TRACKER
+// ============================================================
+function renderReqItems(){
+  var el = document.getElementById('reqItems');
+  if(!el) return;
+  el.innerHTML = REQ_FIELDS.map(function(f){
+    var val = S.req[f.key];
+    return '<div class="req-item">' +
+      '<span class="req-key">' + f.label + '</span>' +
+      '<span class="req-val ' + (val ? '' : 'empty') + '" id="req-val-' + f.key + '">' + (val || 'Not yet specified') + '</span>' +
+      '<span class="req-check ' + (val ? 'done' : 'pending') + '" id="req-chk-' + f.key + '">' + (val ? '✓' : '·') + '</span>' +
+    '</div>';
+  }).join('');
+}
+
+function updateReq(key, val){
+  S.req[key] = val;
+  var valEl = document.getElementById('req-val-' + key);
+  var chkEl = document.getElementById('req-chk-' + key);
+  if(valEl){
+    valEl.textContent  = val || 'Not yet specified';
+    valEl.className    = 'req-val' + (val ? '' : ' empty');
+  }
+  if(chkEl){
+    chkEl.textContent = val ? '✓' : '·';
+    chkEl.className   = 'req-check ' + (val ? 'done' : 'pending');
+  }
+}
+
+// ============================================================
+// CITY PILLS
+// ============================================================
+function renderCityPills(){
+  var el = document.getElementById('cityPills');
+  if(!el) return;
+  el.innerHTML = Object.keys(HOTELS).map(function(city){
+    var d = HOTELS[city];
+    return '<div class="city-pill" id="cpill-' + city + '" onclick="selectCity(\'' + city + '\')">' +
+      '<span class="city-pill-emoji">' + d.emoji + '</span>' +
+      '<div class="city-pill-info">' +
+        '<div class="city-pill-name">' + city + '</div>' +
+        '<div class="city-pill-desc">' + d.desc + '</div>' +
+      '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectCity(city){
+  S.selectedCity = city;
+  updateReq('city', city);
+  document.querySelectorAll('.city-pill').forEach(function(p){ p.classList.remove('active'); });
+  var pill = document.getElementById('cpill-' + city);
+  if(pill) pill.classList.add('active');
+  renderHotelMicros(city);
+  var bCity = document.getElementById('bCity');
+  if(bCity){ bCity.value = city; onCityChange(city); }
+}
+
+function renderHotelMicros(city){
+  var data = HOTELS[city];
+  if(!data){ document.getElementById('hotelMicros').style.display = 'none'; return; }
+  document.getElementById('hotelMicros').style.display = '';
+  document.getElementById('hotelMicrosTitle').textContent = 'Hotels in ' + city + ' ' + data.emoji;
+  document.getElementById('hotelMicroList').innerHTML = data.hotels.map(function(h){
+    var chips = Object.keys(h.rooms).map(function(t){
+      return '<span class="room-chip">' + t + ' - Rs ' + h.rooms[t].toLocaleString('en-IN') + '</span>';
+    }).join('');
+    return '<div class="hotel-micro" onclick="selectHotelMicro(\'' + h.name.replace(/'/g,"\\'") + '\',\'' + city + '\')">' +
+      '<div class="hotel-micro-stars">' + '★'.repeat(h.stars) + '☆'.repeat(5-h.stars) + '</div>' +
+      '<div class="hotel-micro-name">' + h.name + '</div>' +
+      '<div class="room-chips">' + chips + '</div>' +
+    '</div>';
+  }).join('');
+}
+
+function selectHotelMicro(hotelName, city){
+  updateReq('hotel', hotelName);
+  openBookingModal();
+  setTimeout(function(){
+    var bCity = document.getElementById('bCity');
+    if(bCity){ bCity.value = city; onCityChange(city); }
+    setTimeout(function(){
+      var bHotel = document.getElementById('bHotel');
+      if(bHotel){ bHotel.value = hotelName; onHotelChange(hotelName); }
+    }, 60);
+  }, 60);
+}
+
+// ============================================================
+// BOOKING FORM
+// ============================================================
+function openBookingModal(){
+  var bEmail = document.getElementById('bEmail');
+  if(bEmail && S.email) bEmail.value = S.email;
+  document.getElementById('bookingModal').classList.add('open');
+}
+function closeBookingModal(){ document.getElementById('bookingModal').classList.remove('open'); }
+
+function onCityChange(city){
+  updateReq('city', city);
+  var hSel = document.getElementById('bHotel');
+  hSel.innerHTML = '<option value="">Select hotel...</option>';
+  document.getElementById('bRoom').innerHTML = '<option value="">Select room...</option>';
+  document.getElementById('bkPricePreview').style.display = 'none';
+  var data = HOTELS[city];
+  if(!data) return;
+  data.hotels.forEach(function(h){
+    hSel.innerHTML += '<option value="' + h.name + '">' + h.name + '</option>';
+  });
+}
+
+function onHotelChange(hotelName){
+  updateReq('hotel', hotelName);
+  var city = document.getElementById('bCity').value;
+  var rSel = document.getElementById('bRoom');
+  rSel.innerHTML = '<option value="">Select room...</option>';
+  var data = HOTELS[city];
+  if(!data || !hotelName) return;
+  var hotel = null;
+  for(var i=0; i<data.hotels.length; i++){
+    if(data.hotels[i].name === hotelName){ hotel = data.hotels[i]; break; }
+  }
+  if(!hotel) return;
+  Object.keys(hotel.rooms).forEach(function(t){
+    rSel.innerHTML += '<option value="' + t + '" data-price="' + hotel.rooms[t] + '">' +
+      t + ' — Rs ' + hotel.rooms[t].toLocaleString('en-IN') + '/night</option>';
+  });
+  updatePricePreview();
+}
+
+document.getElementById('bHotel').addEventListener('change', function(){ onHotelChange(this.value); });
+
+function updatePricePreview(){
+  var city  = document.getElementById('bCity').value;
+  var hotel = document.getElementById('bHotel').value;
+  var rSel  = document.getElementById('bRoom');
+  var room  = rSel.value;
+  var ci    = document.getElementById('bCheckin').value;
+  var co    = document.getElementById('bCheckout').value;
+  var prev  = document.getElementById('bkPricePreview');
+
+  updateReq('room',     room);
+  updateReq('checkin',  ci);
+  updateReq('checkout', co);
+
+  if(!city || !hotel || !room || !ci || !co){ prev.style.display = 'none'; return; }
+  var nights = Math.max(1, Math.ceil((new Date(co) - new Date(ci)) / 86400000));
+  var opt    = rSel.querySelector('option[value="' + room + '"]');
+  var price  = opt ? parseInt(opt.dataset.price || 0) : 0;
+  var total  = price * nights;
+  document.getElementById('bkPriceVal').textContent = 'Rs ' + total.toLocaleString('en-IN') + ' (' + nights + ' night' + (nights>1?'s':'') + ')';
+  prev.style.display = '';
+}
+async function submitBooking(){
+
+  var errEl   = document.getElementById('bkError');
+  errEl.style.display = 'none';
+
+  var city    = document.getElementById('bCity').value;
+  var hotel   = document.getElementById('bHotel').value;
+  var room    = document.getElementById('bRoom').value;
+  var ci      = document.getElementById('bCheckin').value;
+  var co      = document.getElementById('bCheckout').value;
+  var guests  = parseInt(document.getElementById('bGuests').value);
+  var email   = document.getElementById('bEmail').value.trim();
+  var special = document.getElementById('bSpecial').value.trim();
+
+  if(!city || !hotel || !room){
+    errEl.textContent = 'Please select destination, hotel and room type.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(!ci || !co){
+    errEl.textContent = 'Please select check-in and check-out dates.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(new Date(co) <= new Date(ci)){
+    errEl.textContent = 'Check-out must be after check-in.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  if(!email || !email.includes('@')){
+    errEl.textContent = 'Please enter a valid email address.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  var btn = document.getElementById('bkSubmitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Processing...';
+
+  updateReq('checkin',  ci);
+  updateReq('checkout', co);
+  updateReq('guests',   guests + ' Guest' + (guests>1?'s':''));
+  updateReq('email',    email);
+  updateReq('special',  special || 'None');
+
+  try {
+
+    // ==========================
+    // 1️⃣ Create booking
+    // ==========================
+    var res = await fetch(BACKEND + '/api/booking', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        guest_name:       S.name || 'Guest',
+        guest_email:      email,
+        destination:      city,
+        hotel_name:       hotel,
+        room_type:        room,
+        check_in:         ci,
+        check_out:        co,
+        num_guests:       guests,
+        special_requests: special,
+        language:         S.lang
+      })
+    });
+
+    var data = await res.json();
+    if(!res.ok) throw new Error(data.detail || 'Booking failed');
+
+    console.log("Booking created:", data.confirmation_number);
+
+    // ==========================
+    // 2️⃣ Optional avatar speak
+    // ==========================
+    if (S && S.tavus && S.tavus.conversation_id) {
+      fetch(BACKEND + "/api/tavus/speak", {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({
+          conversation_id: S.tavus.conversation_id,
+          text: "Your booking is confirmed. I am sending your confirmation email now."
+        })
+      });
+    }
+
+    // ==========================
+    // 3️⃣ ALWAYS send email
+    // ==========================
+    console.log("Calling avatar email API...");
+
+    var emailRes = await fetch(
+      BACKEND + "/api/avatar-send-email/" + data.confirmation_number,
+      { method: "POST" }
+    );
+
+    var emailData = await emailRes.json();
+    console.log("Email API response:", emailData);
+
+    // ==========================
+    // 4️⃣ Show confirmation
+    // ==========================
+    closeBookingModal();
+    showConfirmation(data);
+
+  } catch(e){
+    console.error("Booking Error:", e);
+    errEl.textContent = 'Booking failed. Please try again.';
+    errEl.style.display = 'block';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Confirm Booking & Send Email';
+}
+// ============================================================
+// CONFIRMATION
+// ============================================================
+function showConfirmation(d){
+  document.getElementById('confNum').textContent = d.confirmation_number;
+
+  var total = d.total_inr || (d.price_per_night * (d.nights || 1));
+  var rows  = [
+    ['GUEST',       d.guest_name],
+    ['DESTINATION', d.destination + ', Tamil Nadu'],
+    ['HOTEL',       d.hotel_name],
+    ['ROOM',        d.room_type],
+    ['CHECK-IN',    d.check_in],
+    ['CHECK-OUT',   d.check_out],
+    ['NIGHTS',      d.nights + ' Night' + (d.nights>1?'s':'')],
+    ['GUESTS',      d.num_guests + ' Guest' + (d.num_guests>1?'s':'')],
+    ['SPECIAL',     d.special_requests || 'None'],
+    ['TOTAL',       'Rs ' + total.toLocaleString('en-IN')],
+  ];
+
+  document.getElementById('confDetails').innerHTML = rows.map(function(r){
+    return '<div class="conf-row">' +
+      '<span class="conf-key">' + r[0] + '</span>' +
+      '<span class="conf-val' + (r[0]==='TOTAL'?' conf-total':'') + '">' + r[1] + '</span>' +
+    '</div>';
+  }).join('');
+
+  if(d.qr_code_base64){
+    document.getElementById('confQR').src = 'data:image/png;base64,' + d.qr_code_base64;
+  } else {
+    var upiUrl = 'upi://pay?pa=' + UPI_ID + '&pn=Tamil%20Nadu%20Grand%20Hotels&am=' + total + '&cu=INR&tn=' + d.confirmation_number;
+    document.getElementById('confQR').src =
+      'https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=' + encodeURIComponent(upiUrl) + '&color=1a0a00&bgcolor=ffffff';
+  }
+
+  var emailNotice = document.getElementById('emailNotice');
+  if(d.guest_email){
+    emailNotice.textContent  = 'Confirmation email sent to ' + d.guest_email;
+    emailNotice.style.display = 'block';
+    document.getElementById('confSubText').textContent =
+      'Booking confirmed! Email with payment QR sent to ' + d.guest_email;
+  } else {
+    emailNotice.style.display = 'none';
+  }
+
+  document.getElementById('confModal').classList.add('open');
+}
+
+function closeConfModal(){ document.getElementById('confModal').classList.remove('open'); }
+</script>
+</body>
+</html>
